@@ -1,0 +1,18 @@
+{
+  "name": "Mapownik — baza klientek stylistki rzęs",
+  "short_name": "Mapownik",
+  "description": "Alfabetyczna baza klientek, mapki rzęs i historia wizyt.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#F5F1EE",
+  "theme_color": "#9C4F61",
+  "lang": "pl",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

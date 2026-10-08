@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mapownik — baza klientek stylistki rzęs</title>
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#9C4F61">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mapownik">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F5F1EE; --surface:#FFFFFF; --surface-2:#FBF8F6;
+  --ink:#2A2320; --muted:#8A7B73;
+  --accent:#9C4F61; --accent-ink:#FFFFFF; --accent-soft:#F0DCE1;
+  --line:#E5DAD3; --good:#5C7A5E; --warn:#B8793A; --danger:#B14A4A;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1B1613; --surface:#241E1A; --surface-2:#2B2420;
+    --ink:#F0E8E2; --muted:#A79890;
+    --accent:#E08FA0; --accent-ink:#241A1D; --accent-soft:#3B2A30;
+    --line:#3A322C; --good:#8CB58E; --warn:#D99E5F; --danger:#E08787;
+    color-scheme: dark;
+  }
+}
+*{box-sizing:border-box;}
+html,body{height:100%;margin:0;}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:'Work Sans',system-ui,-apple-system,Segoe UI,sans-serif;
+}
+h1,h2,h3,.display{font-family:'Fraunces',Georgia,serif;font-weight:600;text-wrap:balance;}
+button{font-family:inherit;}
+input,select,textarea{font-family:inherit;}
+a{color:var(--accent);}
+[hidden]{display:none!important;}
+
+/* ---------- shared bits ---------- */
+.btn{
+  border:1px solid var(--accent); background:var(--accent); color:var(--accent-ink);
+  font-weight:600; font-size:13.5px; padding:9px 14px; border-radius:9px; cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+}
+.btn.ghost{background:transparent;color:var(--accent);}
+.btn.subtle{background:var(--surface-2);border-color:var(--line);color:var(--ink);}
+.btn.danger{background:transparent;border-color:var(--danger);color:var(--danger);}
+.btn.small{padding:6px 10px;font-size:12.5px;border-radius:7px;}
+.btn:disabled{opacity:.45;cursor:not-allowed;}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;}
+.card h2{font-size:16px;margin:0 0 14px;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{font-size:11.5px;font-weight:600;color:var(--muted);letter-spacing:.02em;}
+.field input,.field select,.field textarea{
+  border:1px solid var(--line); background:var(--surface-2); color:var(--ink);
+  border-radius:8px; padding:9px 10px; font-size:13.5px; width:100%;
+}
+.field textarea{resize:vertical;min-height:56px;}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.msg{font-size:12.5px;padding:9px 12px;border-radius:8px;margin-top:10px;}
+.msg.err{background:var(--danger);color:var(--surface);opacity:.9;}
+.msg.ok{background:var(--good);color:var(--surface);opacity:.9;}
+
+/* ---------- auth screen ---------- */
+.auth-screen{
+  min-height:100%; display:flex; align-items:center; justify-content:center; padding:24px 16px;
+}
+.auth-box{width:100%;max-width:380px;}
+.auth-brand{display:flex;align-items:center;justify-content:center;gap:9px;font-family:'Fraunces',serif;font-size:22px;font-weight:600;margin-bottom:22px;}
+.auth-brand svg{width:30px;height:19px;color:var(--accent);}
+.auth-tabs{display:flex;gap:4px;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px;margin-bottom:18px;}
+.auth-tabs button{flex:1;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;padding:8px;border-radius:999px;cursor:pointer;}
+.auth-tabs button.active{background:var(--accent);color:var(--accent-ink);}
+.auth-box .field{margin-bottom:12px;}
+.auth-note{font-size:11.5px;color:var(--muted);line-height:1.6;margin-top:14px;text-align:center;}
+
+/* ---------- app shell ---------- */
+.app{max-width:1180px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;}
+.topbar{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line);
+  background:var(--surface);position:sticky;top:0;z-index:10;
+}
+.topbar .brand{display:flex;align-items:center;gap:9px;font-family:'Fraunces',serif;font-size:19px;font-weight:600;white-space:nowrap;}
+.brand svg{width:26px;height:16px;flex:none;color:var(--accent);}
+.topbar nav{display:flex;gap:4px;margin-left:auto;background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:3px;}
+.topbar nav button{border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;padding:7px 14px;border-radius:999px;cursor:pointer;}
+.topbar nav button.active{background:var(--accent);color:var(--accent-ink);}
+.status-banner{padding:10px 16px;background:var(--accent-soft);color:var(--ink);font-size:13px;text-align:center;}
+
+.main{flex:1;display:flex;min-width:0;width:100%;}
+.rail{width:300px;flex:none;border-right:1px solid var(--line);background:var(--surface);display:flex;flex-direction:column;min-width:0;}
+.rail-head{padding:14px 14px 10px;display:flex;flex-direction:column;gap:10px;}
+.search-box{position:relative;}
+.search-box input{width:100%;padding:9px 12px 9px 32px;border:1px solid var(--line);border-radius:9px;background:var(--surface-2);color:var(--ink);font-size:13.5px;}
+.search-box svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;color:var(--muted);}
+.client-list{flex:1;overflow-y:auto;padding:4px 8px 14px;}
+.letter-head{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--accent);padding:10px 8px 4px;}
+.client-row{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:transparent;border:1px solid transparent;border-radius:9px;padding:9px 8px;cursor:pointer;color:var(--ink);}
+.client-row:hover{background:var(--surface-2);}
+.client-row.active{background:var(--accent-soft);border-color:var(--accent);}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex:none;}
+.client-row .meta{min-width:0;flex:1;}
+.client-row .name{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.client-row .sub{font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.empty-list{padding:30px 20px;text-align:center;color:var(--muted);font-size:13px;line-height:1.6;}
+
+.panel{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--bg);overflow-y:auto;}
+.panel-inner{max-width:720px;width:100%;margin:0 auto;padding:22px 20px 60px;display:flex;flex-direction:column;gap:22px;}
+.back-btn{display:none;align-items:center;gap:6px;color:var(--accent);background:none;border:none;font-size:13.5px;font-weight:600;cursor:pointer;padding:4px 0;}
+.placeholder{margin:auto;text-align:center;color:var(--muted);padding:60px 20px;max-width:360px;}
+.placeholder svg{width:70px;height:44px;margin-bottom:14px;opacity:.6;color:var(--accent);}
+.placeholder h3{color:var(--ink);font-size:18px;margin:0 0 8px;}
+.placeholder p{font-size:13.5px;line-height:1.6;margin:0 0 16px;}
+
+.chip-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;}
+.chip{border:1px solid var(--line);background:var(--surface-2);color:var(--ink);font-size:12.5px;padding:6px 12px;border-radius:999px;cursor:pointer;}
+.chip.selected{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600;}
+#fCustomStyle{display:block;width:100%;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:8px;padding:9px 10px;font-size:13.5px;margin-bottom:12px;}
+
+.canvas-wrap{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:10px;}
+.canvas-toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
+.swatch-row{display:flex;gap:6px;align-items:center;}
+.swatch{width:22px;height:22px;border-radius:50%;border:2px solid transparent;cursor:pointer;}
+.swatch.selected{border-color:var(--ink);}
+.canvas-toolbar input[type=range]{width:80px;accent-color:var(--accent);}
+canvas{width:100%;height:auto;display:block;touch-action:none;border-radius:8px;background:var(--surface);cursor:crosshair;}
+.toggle-row{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--muted);margin-top:8px;}
+.toggle-row input{accent-color:var(--accent);}
+.actions-row{display:flex;gap:10px;justify-content:flex-end;margin-top:4px;flex-wrap:wrap;}
+
+.history-item{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--line);}
+.history-item:first-child{border-top:none;padding-top:0;}
+.history-thumb{width:62px;height:40px;border-radius:7px;object-fit:cover;flex:none;background:var(--surface-2);border:1px solid var(--line);}
+.history-meta{font-size:12.5px;color:var(--muted);line-height:1.6;min-width:0;}
+.history-meta b{color:var(--ink);font-weight:600;}
+.history-date{font-size:11.5px;font-weight:700;color:var(--accent);letter-spacing:.03em;text-transform:uppercase;}
+
+.ref-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.ref-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;text-align:center;}
+.ref-card svg{width:100%;height:auto;max-width:220px;}
+.ref-card .rname{font-family:'Fraunces',serif;font-weight:600;color:var(--accent);font-size:15px;margin-top:6px;}
+.ref-card .rcap{font-size:12px;color:var(--muted);line-height:1.5;margin-top:4px;}
+
+.settings-list{display:flex;flex-direction:column;gap:14px;}
+.settings-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--surface-2);flex-wrap:wrap;}
+.settings-row .t{font-size:13.5px;font-weight:600;}
+.settings-row .d{font-size:12px;color:var(--muted);margin-top:2px;}
+
+footer.legal{text-align:center;padding:14px;font-size:11.5px;color:var(--muted);}
+footer.legal a{color:var(--muted);text-decoration:underline;}
+
+@media (max-width:760px){
+  .field-row{grid-template-columns:1fr;}
+  .ref-grid{grid-template-columns:1fr;}
+  .rail{width:100%;border-right:none;}
+  .main{position:relative;overflow:hidden;}
+  .main.show-detail .rail{display:none;}
+  .main:not(.show-detail) .panel{display:none;}
+  .back-btn{display:inline-flex;}
+  .panel-inner{padding:16px 16px 50px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ AUTH SCREEN ============ -->
+<div class="auth-screen" id="authScreen">
+  <div class="auth-box">
+    <div class="auth-brand">
+      <svg viewBox="0 0 48 30" fill="none"><path d="M2 15C10 2 38 2 46 15C38 28 10 28 2 15Z" stroke="currentColor" stroke-width="2.4"/><circle cx="24" cy="15" r="5.5" fill="currentColor"/></svg>
+      Mapownik
+    </div>
+    <div class="auth-tabs">
+      <button id="tabLogin" class="active">Zaloguj się</button>
+      <button id="tabSignup">Załóż konto</button>
+    </div>
+
+    <form id="formLogin" class="card">
+      <div class="field"><label>E-mail</label><input type="email" id="loginEmail" required autocomplete="email"></div>
+      <div class="field"><label>Hasło</label><input type="password" id="loginPassword" required autocomplete="current-password"></div>
+      <button class="btn" type="submit" style="width:100%;margin-top:4px;">Zaloguj się</button>
+      <div id="loginMsg"></div>
+      <div class="auth-note"><a href="#" id="forgotLink">Nie pamiętam hasła</a></div>
+    </form>
+
+    <form id="formSignup" class="card" hidden>
+      <div class="field"><label>E-mail</label><input type="email" id="signupEmail" required autocomplete="email"></div>
+      <div class="field"><label>Hasło (min. 8 znaków)</label><input type="password" id="signupPassword" required minlength="8" autocomplete="new-password"></div>
+      <div class="field" style="flex-direction:row;align-items:flex-start;gap:8px;">
+        <input type="checkbox" id="signupConsent" required style="margin-top:3px;accent-color:var(--accent);">
+        <label for="signupConsent" style="font-size:12px;font-weight:400;color:var(--ink);line-height:1.5;">
+          Akceptuję <a href="regulamin.html" target="_blank">regulamin</a> i <a href="polityka-prywatnosci.html" target="_blank">politykę prywatności</a>.
+        </label>
+      </div>
+      <button class="btn" type="submit" style="width:100%;margin-top:4px;">Załóż konto</button>
+      <div id="signupMsg"></div>
+    </form>
+
+    <div class="auth-note">Twoje dane klientek widzisz tylko Ty — każde konto ma własną, odizolowaną bazę.</div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div class="app" id="appRoot" hidden>
+  <div class="topbar">
+    <div class="brand">
+      <svg viewBox="0 0 48 30" fill="none"><path d="M2 15C10 2 38 2 46 15C38 28 10 28 2 15Z" stroke="currentColor" stroke-width="2.4"/><circle cx="24" cy="15" r="5.5" fill="currentColor"/></svg>
+      Mapownik
+    </div>
+    <nav>
+      <button id="navClients" class="active">Klientki</button>
+      <button id="navStyles">Style</button>
+      <button id="navSettings">Konto</button>
+    </nav>
+  </div>
+  <div id="statusBanner" class="status-banner" hidden></div>
+
+  <div class="main" id="mainArea">
+    <div class="rail" id="railClients">
+      <div class="rail-head">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input id="searchInput" type="search" placeholder="Szukaj klientki…" autocomplete="off">
+        </div>
+        <button class="btn" id="btnNewClient">+ Nowa klientka</button>
+      </div>
+      <div class="client-list" id="clientList"></div>
+    </div>
+
+    <div class="panel" id="panelClients">
+      <div class="panel-inner" id="clientDetailRoot">
+        <div class="placeholder" id="clientPlaceholder">
+          <svg viewBox="0 0 48 30" fill="none"><path d="M2 15C10 2 38 2 46 15C38 28 10 28 2 15Z" stroke="currentColor" stroke-width="2.4"/><circle cx="24" cy="15" r="5.5" fill="currentColor"/></svg>
+          <h3>Wybierz klientkę</h3>
+          <p>Albo dodaj nową, żeby zapisać jej pierwszą mapkę rzęs.</p>
+          <button class="btn" id="btnNewClient2">+ Nowa klientka</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main" id="stylesArea" hidden>
+    <div class="panel"><div class="panel-inner">
+      <div class="card">
+        <h2>Ściąga stylów modelowania oka</h2>
+        <p style="font-size:13px;color:var(--muted);margin:-6px 0 16px;line-height:1.6;">Punkt wyjścia do własnych modyfikacji pod kształt oka klientki. <b>W</b> — kącik wewnętrzny, <b>Z</b> — kącik zewnętrzny.</p>
+        <div class="ref-grid" id="refGrid"></div>
+      </div>
+    </div></div>
+  </div>
+
+  <div class="main" id="settingsArea" hidden>
+    <div class="panel"><div class="panel-inner">
+      <div class="card">
+        <h2>Twoje konto</h2>
+        <p style="font-size:13px;color:var(--muted);margin:-6px 0 16px;" id="accountEmail"></p>
+        <div class="settings-list">
+          <div class="settings-row">
+            <div><div class="t">Pobierz moje dane</div><div class="d">Eksport wszystkich klientek i wizyt jako plik JSON (prawo do przenoszenia danych, RODO art. 20)</div></div>
+            <button class="btn subtle" id="btnExport">Pobierz dane</button>
+          </div>
+          <div class="settings-row">
+            <div><div class="t">Usuń wszystkie dane klientek</div><div class="d">Trwale kasuje wszystkie zapisane klientki, wizyty i mapki — nieodwracalne (RODO art. 17)</div></div>
+            <button class="btn danger" id="btnWipe">Usuń dane</button>
+          </div>
+          <div class="settings-row">
+            <div><div class="t">Zamknij konto</div><div class="d">Usunięcie loginu wymaga potwierdzenia — napisz do nas, a usuniemy konto w ciągu 30 dni zgodnie z regulaminem</div></div>
+            <button class="btn subtle" id="btnCloseAccount">Jak zamknąć konto</button>
+          </div>
+          <div class="settings-row">
+            <div><div class="t">Wyloguj się</div><div class="d"></div></div>
+            <button class="btn ghost" id="btnLogout">Wyloguj</button>
+          </div>
+        </div>
+        <div id="settingsMsg"></div>
+      </div>
+    </div></div>
+  </div>
+
+  <footer class="legal">
+    <a href="polityka-prywatnosci.html" target="_blank">Polityka prywatności</a> · <a href="regulamin.html" target="_blank">Regulamin</a>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script>
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", ()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); });
+  }
+</script>
+</body>
+</html>
