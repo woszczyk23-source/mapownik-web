@@ -177,33 +177,14 @@ footer.legal a{color:var(--muted);text-decoration:underline;}
       <svg viewBox="0 0 48 30" fill="none"><path d="M2 15C10 2 38 2 46 15C38 28 10 28 2 15Z" stroke="currentColor" stroke-width="2.4"/><circle cx="24" cy="15" r="5.5" fill="currentColor"/></svg>
       Mapownik
     </div>
-    <div class="auth-tabs">
-      <button id="tabLogin" class="active">Zaloguj się</button>
-      <button id="tabSignup">Załóż konto</button>
-    </div>
-
-    <form id="formLogin" class="card">
-      <div class="field"><label>E-mail</label><input type="email" id="loginEmail" required autocomplete="email"></div>
-      <div class="field"><label>Hasło</label><input type="password" id="loginPassword" required autocomplete="current-password"></div>
-      <button class="btn" type="submit" style="width:100%;margin-top:4px;">Zaloguj się</button>
-      <div id="loginMsg"></div>
-      <div class="auth-note"><a href="#" id="forgotLink">Nie pamiętam hasła</a></div>
+    <form id="formOtp" class="card">
+      <div class="field"><label>E-mail</label><input type="email" id="otpEmail" required autocomplete="email"></div>
+      <button class="btn" type="submit" id="otpSendBtn" style="width:100%;margin-top:4px;">Wyślij link logowania</button>
+      <div id="otpMsg"></div>
+      <div class="auth-note">Dostaniesz e-mail z przyciskiem „Sign in" — kliknij go (na tym samym urządzeniu, na którym chcesz się zalogować) i zostaniesz zalogowana automatycznie, bez hasła.</div>
     </form>
 
-    <form id="formSignup" class="card" hidden>
-      <div class="field"><label>E-mail</label><input type="email" id="signupEmail" required autocomplete="email"></div>
-      <div class="field"><label>Hasło (min. 8 znaków)</label><input type="password" id="signupPassword" required minlength="8" autocomplete="new-password"></div>
-      <div class="field" style="flex-direction:row;align-items:flex-start;gap:8px;">
-        <input type="checkbox" id="signupConsent" required style="margin-top:3px;accent-color:var(--accent);">
-        <label for="signupConsent" style="font-size:12px;font-weight:400;color:var(--ink);line-height:1.5;">
-          Akceptuję <a href="regulamin.html" target="_blank">regulamin</a> i <a href="polityka-prywatnosci.html" target="_blank">politykę prywatności</a>.
-        </label>
-      </div>
-      <button class="btn" type="submit" style="width:100%;margin-top:4px;">Załóż konto</button>
-      <div id="signupMsg"></div>
-    </form>
-
-    <div class="auth-note">Twoje dane klientek widzisz tylko Ty — każde konto ma własną, odizolowaną bazę.</div>
+    <div class="auth-note" style="margin-top:14px;">Dostęp do aplikacji mają tylko osoby dodane przez administratorkę. Nie masz konta? Napisz do osoby, która Cię zaprasza.</div>
   </div>
 </div>
 
